@@ -1,0 +1,18 @@
+name: webdev
+description: A tool for Dart web development.
+version: 0.0.1
+homepage: https://github.com/devoncarew/webdev
+author: Devon Carew <devoncarew@gmail.com>
+
+environment:
+  sdk: '>=1.20.1 <2.0.0'
+
+dependencies:
+  analysis_server_lib: ^0.1.0
+  args: ^0.13.0
+  cli_util: ^0.1.0
+  path: ^1.4.0
+  stagehand: 1.1.3
+
+dev_dependencies:
+  test: ^0.12.0
