@@ -5,17 +5,24 @@ import 'dart:io';
 
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
-
-// TODO: test 'create'
-
-// TODO: test --version
+import 'package:webdev/src/commands/create_command.dart';
 
 main() {
   group('command', () {
+    test('--version', () {
+      TestProject p = project();
+      try {
+        expect(p.run('--version').exitCode, 0);
+      } finally {
+        p.dispose();
+      }
+    });
+
     group('analyze', defineAnalyze);
     group('build', defineBuild);
     group('create', defineCreate);
     group('format', defineFormat);
+    group('serve', defineServe);
     group('test', defineTest);
   });
 }
@@ -34,6 +41,12 @@ defineAnalyze() {
   test('finds errors', () {
     p = project(mainSrc: 'int foo => 1;');
     ProcessResult result = p.run('analyze');
+    expect(result.exitCode, 1);
+  });
+
+  test('fatal infos', () {
+    p = project(mainSrc: "import 'dart:async';\nint get foo => 1;\n");
+    ProcessResult result = p.run('analyze', ['--fatal-infos']);
     expect(result.exitCode, 1);
   });
 }
@@ -60,17 +73,78 @@ defineBuild() {
   });
 }
 
-defineCreate() {
-  // TODO:
-  // invalid template id returns 64
-  // no directory given
-  // directory already exists
-  // list templates
-  // default template id works
+defineServe() {
+  TestProject p;
 
-//  test('todo', () {
-//    // TODO:
+  tearDown(() => p?.dispose());
+
+  test('not applicable', () {
+    p = project(mainSrc: 'int get foo => 1;\n');
+    ProcessResult result = p.run('serve');
+    expect(result.exitCode, isNot(0));
+  });
+
+//  test('connect to server', () {
+//    // TODO: run the server async, test it
 //  });
+}
+
+defineCreate() {
+  TestProject p;
+
+  setUp(() => p = null);
+
+  tearDown(() => p?.dispose());
+
+  test('default template exists', () {
+    expect(CreateCommand.legalIds, contains(CreateCommand.kDefaultTemplateId));
+  });
+
+  test('list templates', () {
+    p = project();
+    ProcessResult result = p.run('create', ['--list']);
+    expect(result.exitCode, 0);
+    expect(result.stdout, contains('Available templates'));
+    expect(result.stdout, contains(CreateCommand.kDefaultTemplateId));
+  });
+
+  test('no directory given', () {
+    p = project();
+    ProcessResult result = p.run('create');
+    expect(result.exitCode, 0);
+    Directory web = new Directory(path.join(p.dir.path, 'web'));
+    expect(web.existsSync(), false);
+  });
+
+  test('directory already exists', () {
+    p = project();
+    ProcessResult result = p.run('create', [
+      '--no-pub',
+      '--template',
+      CreateCommand.kDefaultTemplateId,
+      p.dir.path
+    ]);
+    expect(result.exitCode, 1);
+  });
+
+  test('bad template id', () {
+    p = project();
+    ProcessResult result =
+        p.run('create', ['--no-pub', '--template', 'foo-bar', p.dir.path]);
+    expect(result.exitCode, isNot(0));
+  });
+
+  for (String templateId in CreateCommand.legalIds) {
+    test('create $templateId', () {
+      p = project();
+      ProcessResult result = p.run('create',
+          ['--force', '--no-pub', '--template', templateId, p.dir.path]);
+      expect(result.exitCode, 0);
+      String entry = CreateCommand.getGenerator(templateId).entrypoint.path;
+      File entryFile = new File(path.join(p.dir.path, entry));
+      expect(entryFile.existsSync(), true);
+    });
+  }
 }
 
 defineFormat() {

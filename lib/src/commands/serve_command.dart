@@ -6,10 +6,19 @@ import 'dart:io';
 import '../core.dart';
 import '../sdk.dart';
 
-class BuildCommand extends WebCommand {
-  BuildCommand() : super('build', 'Build the project.') {
+// TODO: --port               The base port to listen on.
+// (defaults to "8080")
+
+// TODO: --hostname           The hostname to listen on.
+//(defaults to "localhost")
+
+class ServeCommand extends WebCommand {
+  ServeCommand() : super('serve', '''Run a local web development server.
+
+By default, this serves "web/" and "test/", but an explicit list of 
+directories to serve can be provided as well.''') {
     argParser.addOption('mode',
-        defaultsTo: 'release',
+        defaultsTo: 'debug',
         allowed: ['release', 'debug'],
         help: 'The build mode (release or debug).');
   }
@@ -17,7 +26,7 @@ class BuildCommand extends WebCommand {
   String get invocation => '${super.invocation} [directories...]';
 
   run() async {
-    List<String> args = ['build'];
+    List<String> args = ['serve'];
     if (argResults.wasParsed('mode')) {
       args.add('--mode');
       args.add(argResults['mode']);

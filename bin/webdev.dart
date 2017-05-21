@@ -16,7 +16,6 @@ main(List<String> arguments) async {
       stderr.writeln('$e');
       exit(64);
     } else {
-      // TODO: stacktrace
       stderr.writeln('$e');
       exit(1);
     }

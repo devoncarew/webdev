@@ -6,21 +6,23 @@ import 'dart:async';
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:cli_util/cli_logging.dart';
-import 'package:webdev/src/commands/analyze_command.dart';
-import 'package:webdev/src/commands/build_command.dart';
-import 'package:webdev/src/commands/create_command.dart';
-import 'package:webdev/src/commands/format_command.dart';
-import 'package:webdev/src/commands/test_command.dart';
 
+import 'src/commands/analyze_command.dart';
+import 'src/commands/build_command.dart';
+import 'src/commands/create_command.dart';
+import 'src/commands/format_command.dart';
+import 'src/commands/serve_command.dart';
+import 'src/commands/test_command.dart';
 import 'src/core.dart';
 import 'src/sdk.dart';
 
-// TODO: run, serve, doc, fix?
+// TODO: run, doc, fix?
 
 // TODO: upgrade, channel
 
 class WebCommandRunner extends CommandRunner {
-  WebCommandRunner() : super('webdev', 'A tool for Dart web development.') {
+  WebCommandRunner()
+      : super('webdev', 'A tool for web development with Dart.') {
     argParser.addFlag('version',
         negatable: false, help: 'Reports the version of this tool.');
     argParser.addFlag('verbose',
@@ -30,6 +32,7 @@ class WebCommandRunner extends CommandRunner {
     addCommand(new BuildCommand());
     addCommand(new CreateCommand());
     addCommand(new FormatCommand());
+    addCommand(new ServeCommand());
     addCommand(new TestCommand());
   }
 

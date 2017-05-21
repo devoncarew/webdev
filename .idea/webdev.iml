@@ -6,12 +6,9 @@
       <excludeFolder url="file://$MODULE_DIR$/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/bin/packages" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
-      <excludeFolder url="file://$MODULE_DIR$/foo_bar/.pub" />
-      <excludeFolder url="file://$MODULE_DIR$/foo_bar/build" />
-      <excludeFolder url="file://$MODULE_DIR$/foo_bar/packages" />
-      <excludeFolder url="file://$MODULE_DIR$/foo_bar/web/packages" />
       <excludeFolder url="file://$MODULE_DIR$/packages" />
       <excludeFolder url="file://$MODULE_DIR$/test/packages" />
+      <excludeFolder url="file://$MODULE_DIR$/tool/packages" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
