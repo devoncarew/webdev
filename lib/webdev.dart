@@ -16,9 +16,7 @@ import 'src/commands/test_command.dart';
 import 'src/core.dart';
 import 'src/sdk.dart';
 
-// TODO: run, doc, fix?
-
-// TODO: upgrade, channel
+// TODO: run, doctor, fix, upgrade, channel, pub get, pub upgrade?
 
 class WebCommandRunner extends CommandRunner {
   WebCommandRunner()
