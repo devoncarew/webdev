@@ -3,20 +3,29 @@
 
 import 'dart:io';
 
-import 'package:webdev/src/command.dart';
-import 'package:webdev/src/sdk.dart';
+import '../core.dart';
+import '../sdk.dart';
 
-// TODO: pass some args
-
-// TODO: name, platform, concurrency, reporter
+// TODO: name, platform, reporter
 
 class TestCommand extends WebCommand {
-  TestCommand() : super('test', 'Run unit tests.');
+  TestCommand() : super('test', 'Run unit tests.') {
+    argParser.addOption('concurrency',
+        abbr: 'j',
+        defaultsTo: '2',
+        help: 'The number of concurrent test suites run.');
+  }
 
   run() async {
-    Process process = await Process.start(sdk.pub, ['run', 'test']);
-    process.stdout.listen(stdout.add);
-    process.stderr.listen(stderr.add);
+    List<String> args = ['run', 'test'];
+    if (argResults.wasParsed('concurrency')) {
+      args.add('--concurrency');
+      args.add(argResults['concurrency']);
+    }
+    args.addAll(argResults.rest);
+
+    Process process = await startProcess(sdk.pub, args);
+    routeToStdout(process);
     return process.exitCode;
   }
 }

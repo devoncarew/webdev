@@ -3,8 +3,8 @@
 
 import 'dart:io';
 
-import 'package:webdev/src/command.dart';
-import 'package:webdev/src/sdk.dart';
+import '../core.dart';
+import '../sdk.dart';
 
 // TODO: release / debug
 
@@ -12,9 +12,8 @@ class BuildCommand extends WebCommand {
   BuildCommand() : super('build', 'Build the project.');
 
   run() async {
-    Process process = await Process.start(sdk.pub, ['build']);
-    process.stdout.pipe(stdout);
-    process.stderr.pipe(stderr);
+    Process process = await startProcess(sdk.pub, ['build']);
+    routeToStdout(process);
     return process.exitCode;
   }
 }

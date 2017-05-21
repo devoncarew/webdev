@@ -4,16 +4,16 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:webdev/src/command.dart';
-import 'package:webdev/src/sdk.dart';
+import '../core.dart';
+import '../sdk.dart';
 
 class FormatCommand extends WebCommand {
   FormatCommand() : super('format', 'Format source files.') {
     argParser.addFlag('dry-run',
         abbr: 'n',
         negatable: false,
-        help: 'Show which files would be modified but make no changes. '
-            'Return exit code 1 if there are any formatting changes.');
+        help: 'Show which files would be modified, but make no changes and '
+            'return an exit code of 1 if there would be any formatting changes.');
   }
 
   run() async {
@@ -29,7 +29,7 @@ class FormatCommand extends WebCommand {
     }
     args.addAll(argResults.rest.isEmpty ? ['.'] : argResults.rest);
 
-    Process process = await Process.start(sdk.dartfmt, args);
+    Process process = await startProcess(sdk.dartfmt, args);
     process.stdout
         .transform(UTF8.decoder)
         .transform(const LineSplitter())
@@ -37,12 +37,17 @@ class FormatCommand extends WebCommand {
       lineCount++;
 
       if (!filter || line.startsWith('Formatted ')) {
-        stdout.writeln(line);
+        log.stdout(line);
+      } else {
+        log.trace(line);
       }
     });
-    process.stderr.listen(stderr.add);
+    process.stderr
+        .transform(UTF8.decoder)
+        .transform(const LineSplitter())
+        .listen(log.stderr);
+
     int code = await process.exitCode;
-    if (argResults['dry-run'] && lineCount > 0) return 1;
-    return code;
+    return (argResults['dry-run'] && lineCount > 0) ? 1 : code;
   }
 }

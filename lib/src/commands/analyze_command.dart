@@ -3,20 +3,20 @@
 
 import 'dart:io';
 
-import 'package:webdev/src/command.dart';
-import 'package:webdev/src/sdk.dart';
+import '../core.dart';
+import '../sdk.dart';
 
 // TODO: use package:analysis_server_lib
 
-// TODO: fails by severity
+// TODO: fail by severity
 
 class AnalyzeCommand extends WebCommand {
   AnalyzeCommand() : super('analyze', 'Analyze the project\'s source code.');
 
   run() async {
-    Process process = await Process.start(sdk.dartanalyzer, ['.']);
-    process.stdout.listen(stdout.add);
-    process.stderr.listen(stderr.add);
-    return process.exitCode;
+    Process process = await startProcess(sdk.dartanalyzer, ['.']);
+    routeToStdout(process);
+    int exitCode = await process.exitCode;
+    return exitCode == 0 ? 0 : 1;
   }
 }

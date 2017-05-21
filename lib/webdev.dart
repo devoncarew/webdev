@@ -11,18 +11,20 @@ import 'package:webdev/src/commands/build_command.dart';
 import 'package:webdev/src/commands/create_command.dart';
 import 'package:webdev/src/commands/format_command.dart';
 import 'package:webdev/src/commands/test_command.dart';
-import 'package:webdev/src/sdk.dart';
 
-// create, run, serve, format doc, fix?
+import 'src/core.dart';
+import 'src/sdk.dart';
 
-// verbose, and process logging
+// TODO: run, serve, doc, fix?
 
-final Ansi ansi = new Ansi(Ansi.terminalSupportsAnsi);
+// TODO: upgrade, channel
 
 class WebCommandRunner extends CommandRunner {
   WebCommandRunner() : super('webdev', 'A tool for Dart web development.') {
     argParser.addFlag('version',
         negatable: false, help: 'Reports the version of this tool.');
+    argParser.addFlag('verbose',
+        abbr: 'v', negatable: false, help: 'Show verbose output.');
 
     addCommand(new AnalyzeCommand());
     addCommand(new BuildCommand());
@@ -40,6 +42,16 @@ class WebCommandRunner extends CommandRunner {
       return null;
     }
 
-    return super.runCommand(results);
+    isVerbose = results['verbose'];
+
+    log = isVerbose
+        ? new Logger.verbose(ansi: ansi)
+        : new Logger.standard(ansi: ansi);
+
+    try {
+      return await super.runCommand(results);
+    } finally {
+      log?.flush();
+    }
   }
 }
