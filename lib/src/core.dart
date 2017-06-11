@@ -28,18 +28,40 @@ Future<Process> startProcess(String executable, List<String> arguments,
   return Process.start(executable, arguments, workingDirectory: cwd);
 }
 
-void routeToStdout(Process process, {bool logToTrace: false}) {
+void routeToStdout(Process process,
+    {bool logToTrace: false, void listener(String str)}) {
   if (isVerbose) {
     process.stdout
         .transform(UTF8.decoder)
         .transform(const LineSplitter())
-        .listen(logToTrace ? log.trace : log.stdout);
+        .listen((String line) {
+      logToTrace ? log.trace(line) : log.stdout(line);
+      if (listener != null) listener(line);
+    });
     process.stderr
         .transform(UTF8.decoder)
         .transform(const LineSplitter())
-        .listen(log.stderr);
+        .listen((String line) {
+      log.stderr(line);
+      if (listener != null) listener(line);
+    });
   } else {
-    if (!logToTrace) process.stdout.listen(stdout.add);
-    process.stderr.listen(stderr.add);
+    if (!logToTrace) {
+      process.stdout
+          .transform(UTF8.decoder)
+          .transform(const LineSplitter())
+          .listen((String line) {
+        log.stdout(line);
+        if (listener != null) listener(line);
+      });
+    }
+
+    process.stderr
+        .transform(UTF8.decoder)
+        .transform(const LineSplitter())
+        .listen((String line) {
+      log.stderr(line);
+      if (listener != null) listener(line);
+    });
   }
 }

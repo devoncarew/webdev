@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:cli_util/cli_logging.dart';
+import 'package:webdev/src/commands/run_command.dart';
 
 import 'src/commands/analyze_command.dart';
 import 'src/commands/build_command.dart';
@@ -16,7 +17,7 @@ import 'src/commands/test_command.dart';
 import 'src/core.dart';
 import 'src/sdk.dart';
 
-// TODO: run, doctor, fix, upgrade, channel, pub get, pub upgrade?
+// TODO: doctor, fix, upgrade, channel, pub get, pub upgrade?
 
 class WebCommandRunner extends CommandRunner {
   WebCommandRunner()
@@ -26,9 +27,10 @@ class WebCommandRunner extends CommandRunner {
     argParser.addFlag('verbose',
         abbr: 'v', negatable: false, help: 'Show verbose output.');
 
-    addCommand(new AnalyzeCommand());
-    addCommand(new BuildCommand());
     addCommand(new CreateCommand());
+    addCommand(new AnalyzeCommand());
+    addCommand(new RunCommand());
+    addCommand(new BuildCommand());
     addCommand(new FormatCommand());
     addCommand(new ServeCommand());
     addCommand(new TestCommand());
