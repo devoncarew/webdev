@@ -22,6 +22,8 @@ Available commands:
   create    Create a new project.
   format    Format source files.
   help      Display help information for webdev.
+  run       Start 'pub serve' and open the given app in Chrome (defaults to 'web/index.html').
+            Use with --live to watch the filesystem and auto-refresh Chrome.
   serve     Run a local web development server.
   test      Run unit tests.
 

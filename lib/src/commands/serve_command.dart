@@ -12,8 +12,13 @@ import '../sdk.dart';
 // TODO: --hostname           The hostname to listen on.
 //(defaults to "localhost")
 
+// TODO: we lose ansi coloring in `webdev serve`
+
 class ServeCommand extends WebCommand {
-  ServeCommand() : super('serve', '''Run a local web development server.
+  ServeCommand()
+      : super(
+            'serve',
+            '''Run a local web development server.
 
 By default, this serves "web/" and "test/", but an explicit list of 
 directories to serve can be provided as well.''') {
