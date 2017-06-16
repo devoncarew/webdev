@@ -57,6 +57,7 @@ class Chrome {
 class ChromeProcess {
   final Process process;
   final int debugPort;
+  bool _processAlive = true;
 
   ChromeProcess(this.process, this.debugPort);
 
@@ -71,8 +72,14 @@ class ChromeProcess {
       return tab.url == url;
     }, retryFor: timeout);
 
+    process.exitCode.then((_) {
+      _processAlive = false;
+    });
+
     return wipTab == null ? null : new ChromeTab(wipTab);
   }
+
+  bool get isAlive => _processAlive;
 
   /// Returns `true` if the signal is successfully delivered to the process.
   /// Otherwise the signal could not be sent, usually meaning that the process
@@ -86,12 +93,39 @@ class ChromeTab {
   final wip.ChromeTab wipTab;
   wip.WipConnection _wip;
 
+  StreamController _disconnectStream = new StreamController.broadcast();
+  StreamController<wip.LogEntry> _entryAddedController =
+      new StreamController.broadcast();
+  StreamController<wip.ConsoleAPIEvent> _consoleAPICalledController =
+      new StreamController.broadcast();
+  StreamController<wip.ExceptionThrownEvent> _exceptionThrownController =
+      new StreamController.broadcast();
+
+  num _lostConnectionTime;
+
   ChromeTab(this.wipTab);
 
   Future connect(Logger log) async {
     _wip = await wipTab.connect();
+
     _wip.log.enable();
+    _wip.log.onEntryAdded.listen((wip.LogEntry entry) {
+      if (_lostConnectionTime == null ||
+          entry.timestamp > _lostConnectionTime) {
+        _entryAddedController.add(entry);
+      }
+    });
+
     _wip.runtime.enable();
+    _wip.runtime.onConsoleAPICalled.listen((wip.ConsoleAPIEvent event) {
+      if (_lostConnectionTime == null ||
+          event.timestamp > _lostConnectionTime) {
+        _consoleAPICalledController.add(event);
+      }
+    });
+
+    _exceptionThrownController.addStream(_wip.runtime.onExceptionThrown);
+
     _wip.page.enable();
 
     if (log.isVerbose) {
@@ -99,21 +133,46 @@ class ChromeTab {
         log.trace(e.toString());
       });
     }
+
+    _wip.onClose.listen((_) {
+      _wip = null;
+      _disconnectStream.add(null);
+      _lostConnectionTime = new DateTime.now().millisecondsSinceEpoch;
+    });
   }
 
-  Stream get onDisconnect => _wip.onClose;
+  bool get isConnected => _wip != null;
 
-  Stream<wip.LogEntry> get onLogEntryAdded {
-    return _wip.log.onEntryAdded;
-  }
+  Stream get onDisconnect => _disconnectStream.stream;
 
-  Stream<wip.ConsoleAPIEvent> get onConsoleAPICalled {
-    return _wip.runtime.onConsoleAPICalled;
-  }
+  Stream<wip.LogEntry> get onLogEntryAdded => _entryAddedController.stream;
 
-  Stream<wip.ExceptionThrownEvent> get onExceptionThrown {
-    return _wip.runtime.onExceptionThrown;
-  }
+  Stream<wip.ConsoleAPIEvent> get onConsoleAPICalled =>
+      _consoleAPICalledController.stream;
+
+  Stream<wip.ExceptionThrownEvent> get onExceptionThrown =>
+      _exceptionThrownController.stream;
 
   Future reload() => _wip.page.reload();
+
+  Future reconnectWhile(Logger log, bool shouldReconnect()) {
+    assert(_wip == null);
+
+    var tryConnect;
+    Completer completer = new Completer();
+
+    tryConnect = () {
+      connect(log).then((_) {
+        completer.complete();
+      }).catchError((e) {
+        if (shouldReconnect()) {
+          new Timer(new Duration(seconds: 2), tryConnect);
+        }
+      });
+    };
+
+    new Timer(new Duration(seconds: 2), tryConnect);
+
+    return completer.future;
+  }
 }

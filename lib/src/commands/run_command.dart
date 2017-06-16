@@ -26,6 +26,10 @@ import '../sdk.dart';
 
 // TODO: support --browser
 
+// TODO: reverse source mapped stack traces
+
+// TODO: support starting w/ a url
+
 class RunCommand extends WebCommand {
   RunCommand()
       : super('run',
@@ -62,7 +66,7 @@ class RunCommand extends WebCommand {
       return 1;
     }
 
-    // TODO: also support dart files
+    // TODO: Also support dart files?
 
     if (path.extension(entryFile) != '.html') {
       usageException('Please select an html file to run (${entryFile}).');
@@ -177,11 +181,17 @@ class RunCommand extends WebCommand {
       if (argResults['live']) {
         DebounceTimer timer = new DebounceTimer(() {
           if (tab != null) {
-            String symbol = ansi.useAnsi ? '⟳  ' : '';
-            log.stdout(ansi.emphasized('\n${symbol}Reloading page...'));
-            tab.reload().catchError((e) {
-              log.stderr('Error reloading page: $e');
-            });
+            final String symbol = ansi.useAnsi ? '⟳  ' : '';
+
+            if (tab.isConnected) {
+              log.stdout(ansi.emphasized('\n${symbol}Reloading page...'));
+              tab.reload().catchError((e) {
+                log.stderr('Error reloading page: $e');
+              });
+            } else {
+              log.stdout(ansi.emphasized('\n${symbol}'
+                  'Reload not performed (no active Chrome connection)'));
+            }
           }
         });
 
@@ -198,19 +208,21 @@ class RunCommand extends WebCommand {
         }
       }
 
-      // TODO: listen for a sigkill and kill chrome
-
       // If the browser process dies, kill pub serve.
       chromeProcess.onExit.then((_) {
         pubServeProcess?.kill();
       });
 
       tab.onDisconnect.listen((_) {
-        // TODO: Poll to re-connect while the browser process is alive.
+        // Poll to re-connect while the browser process is alive.
 
         // Delay slightly to see if the chrome process will exit completely.
         new Timer(new Duration(milliseconds: 500), () {
-          log.stderr('Connection to Chrome lost.');
+          log.stderr(ansi.emphasized('Connection to Chrome lost.\n'));
+
+          tab.reconnectWhile(log, () => chromeProcess.isAlive).then((_) {
+            log.stderr(ansi.emphasized('\nChrome connection restored.'));
+          });
         });
       });
 
