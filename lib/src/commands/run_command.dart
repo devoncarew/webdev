@@ -30,6 +30,8 @@ import '../sdk.dart';
 
 // TODO: support starting w/ a url
 
+// TODO: some exceptions from devtools are not being reported
+
 class RunCommand extends WebCommand {
   RunCommand()
       : super('run',
@@ -58,19 +60,25 @@ class RunCommand extends WebCommand {
       return 1;
     }
 
-    String entryFile =
+    String entry =
         argResults.rest.isEmpty ? 'web/index.html' : argResults.rest.first;
 
-    if (!FileSystemEntity.isFileSync(entryFile)) {
-      usageException('Entry-point file not found: ${entryFile}.');
-      return 1;
-    }
+    Uri entryUri;
+    try {
+      entryUri = Uri.parse(entry);
+    } catch (_) {}
 
-    // TODO: Also support dart files?
+    if (entryUri == null) {
+      if (!FileSystemEntity.isFileSync(entry)) {
+        usageException('Entry-point file not found: ${entry}.');
+        return 1;
+      }
 
-    if (path.extension(entryFile) != '.html') {
-      usageException('Please select an html file to run (${entryFile}).');
-      return 1;
+      // TODO: Also support dart files?
+      if (path.extension(entry) != '.html') {
+        usageException('Please select an html file to run (${entry}).');
+        return 1;
+      }
     }
 
     // check for chrome
@@ -82,7 +90,13 @@ class RunCommand extends WebCommand {
     }
 
     // start pub serve
-    String serveDir = path.split(path.relative(entryFile)).first;
+    String serveDir;
+    if (entryUri != null) {
+      serveDir = 'web';
+    } else {
+      serveDir = path.split(path.relative(entry)).first;
+    }
+
     List<String> args = ['serve'];
     if (argResults.wasParsed('mode')) {
       args.add('--mode');
@@ -108,9 +122,9 @@ class RunCommand extends WebCommand {
       String baseUrl = await pubServeStarted.future;
 
       // start chrome
-      Uri uri = Uri
-          .parse(baseUrl)
-          .resolve(path.split(entryFile).sublist(1).join('/'));
+      Uri uri = entryUri != null
+          ? entryUri
+          : Uri.parse(baseUrl).resolve(path.split(entry).sublist(1).join('/'));
       chromeProcess = await chrome.start(url: uri.toString());
       log.stdout('Starting Chrome tab for $uri...');
 
