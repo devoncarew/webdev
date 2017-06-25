@@ -66,6 +66,9 @@ class RunCommand extends WebCommand {
     Uri entryUri;
     try {
       entryUri = Uri.parse(entry);
+      if (entryUri.scheme.isEmpty) {
+        entryUri = null;
+      }
     } catch (_) {}
 
     if (entryUri == null) {
