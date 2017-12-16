@@ -69,8 +69,9 @@ class CreateCommand extends WebCommand {
       return 1;
     }
 
-    log.stdout(
-        'Creating a ${ansi.emphasized(templateId)} project in $dir...\n');
+    log.stdout('Creating a ${ansi.emphasized(templateId)} project at '
+        '${ansi.emphasized(path.absolute(dir))}...');
+    log.stdout('');
 
     stagehand.Generator generator = getGenerator(templateId);
     await generator.generate(
@@ -92,9 +93,24 @@ class CreateCommand extends WebCommand {
       progress.finish(showTiming: true);
     }
 
-    log.stdout('\nCreated project ${ansi.emphasized('$dir')}.');
+    // "Provisioned 56 packages."
+    io.File packagesFile = new io.File(path.join(dir, '.packages'));
+    if (packagesFile.existsSync()) {
+      int packageCount = packagesFile
+          .readAsStringSync()
+          .split('\n')
+          .where((line) => line.isNotEmpty && !line.startsWith('#'))
+          .length;
+      // Don't include the self-reference in the list.
+      log.stdout('  Provisioned ${packageCount - 1} packages.');
+    }
 
-    // TODO: cd and running instructions
+    log.stdout('');
+    log.stdout('Created project $dir! In order to get started:');
+    log.stdout('');
+    log.stdout(ansi.emphasized('  cd ${path.relative(dir)}'));
+    log.stdout(ansi.emphasized('  webdev run'));
+    log.stdout('');
   }
 
   String get usageFooter {
@@ -118,11 +134,7 @@ class DirectoryGeneratorTarget extends stagehand.GeneratorTarget {
     io.File file = new io.File(path.join(dir.path, filePath));
 
     String name = path.relative(file.path, from: dir.path);
-    if (filePath == generator.entrypoint.path) {
-      log.stdout('  ${ansi.emphasized(name)}');
-    } else {
-      log.stdout('  $name');
-    }
+    log.stdout('  $name');
 
     return file
         .create(recursive: true)

@@ -13,13 +13,15 @@ class Sdk {
 
   Sdk() : dir = getSdkPath();
 
-  // TODO: support windows
-  String get pub => path.join(dir, 'bin', 'pub');
+  String get dartanalyzer => path.join(dir, 'bin', _binName('dartanalyzer'));
 
-  String get dartanalyzer => path.join(dir, 'bin', 'dartanalyzer');
+  String get dartfmt => path.join(dir, 'bin', _binName('dartfmt'));
 
-  String get dartfmt => path.join(dir, 'bin', 'dartfmt');
+  String get pub => path.join(dir, 'bin', _binName('pub'));
 
   String get version =>
       new File(path.join(dir, 'version')).readAsStringSync().trim();
+
+  static String _binName(String base) =>
+      Platform.isWindows ? '${base}.bat' : base;
 }

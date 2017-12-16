@@ -28,21 +28,24 @@ Future<Process> startProcess(String executable, List<String> arguments,
   return Process.start(executable, arguments, workingDirectory: cwd);
 }
 
-void routeToStdout(Process process,
-    {bool logToTrace: false, void listener(String str)}) {
+void routeToStdout(
+  Process process, {
+  bool logToTrace: false,
+  void listener(String str),
+}) {
   if (isVerbose) {
     process.stdout
         .transform(UTF8.decoder)
         .transform(const LineSplitter())
         .listen((String line) {
-      logToTrace ? log.trace(line) : log.stdout(line);
+      logToTrace ? log.trace(line.trimRight()) : log.stdout(line.trimRight());
       if (listener != null) listener(line);
     });
     process.stderr
         .transform(UTF8.decoder)
         .transform(const LineSplitter())
         .listen((String line) {
-      log.stderr(line);
+      log.stderr(line.trimRight());
       if (listener != null) listener(line);
     });
   } else {
@@ -51,7 +54,7 @@ void routeToStdout(Process process,
           .transform(UTF8.decoder)
           .transform(const LineSplitter())
           .listen((String line) {
-        log.stdout(line);
+        log.stdout(line.trimRight());
         if (listener != null) listener(line);
       });
     }
@@ -60,7 +63,7 @@ void routeToStdout(Process process,
         .transform(UTF8.decoder)
         .transform(const LineSplitter())
         .listen((String line) {
-      log.stderr(line);
+      log.stderr(line.trimRight());
       if (listener != null) listener(line);
     });
   }

@@ -6,7 +6,7 @@ import 'dart:io';
 import '../core.dart';
 import '../sdk.dart';
 
-// TODO: name, platform, reporter
+// TODO: handle name, platform, reporter
 
 class TestCommand extends WebCommand {
   TestCommand() : super('test', 'Run unit tests.') {

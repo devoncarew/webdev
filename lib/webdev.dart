@@ -20,18 +20,18 @@ import 'src/sdk.dart';
 // TODO: doctor, fix, upgrade, channel, pub get, pub upgrade?
 
 class WebCommandRunner extends CommandRunner {
-  WebCommandRunner()
-      : super('webdev', 'A tool for web development with Dart.') {
+  WebCommandRunner() : super('webdev', 'A tool for Dart web development.') {
     argParser.addFlag('version',
         negatable: false, help: 'Reports the version of this tool.');
     argParser.addFlag('verbose',
         abbr: 'v', negatable: false, help: 'Show verbose output.');
 
-    addCommand(new CreateCommand());
     addCommand(new AnalyzeCommand());
-    addCommand(new RunCommand());
     addCommand(new BuildCommand());
+    addCommand(new CreateCommand());
     addCommand(new FormatCommand());
+    // TODO: addCommand(new PubCommand());
+    addCommand(new RunCommand());
     addCommand(new ServeCommand());
     addCommand(new TestCommand());
   }
