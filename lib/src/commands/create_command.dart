@@ -46,8 +46,10 @@ class CreateCommand extends WebCommand {
     );
   }
 
+  @override
   String get invocation => '${super.invocation} <directory>';
 
+  @override
   run() async {
     if (argResults['list']) {
       log.stdout(usageFooter.trimLeft());
@@ -63,14 +65,14 @@ class CreateCommand extends WebCommand {
 
     String dir = argResults.rest.first;
     io.Directory targetDir = new io.Directory(dir);
-    if (targetDir.existsSync() && !argResults['force']) {
+    if (targetDir.existsSync() && !(argResults['force'])) {
       log.stderr(
           "Directory '$dir' already exists (use '--force' to force project generation).");
       return 1;
     }
 
-    log.stdout('Creating a ${ansi.emphasized(templateId)} project at '
-        '${ansi.emphasized(path.absolute(dir))}...');
+    log.stdout(
+        'Creating ${ansi.emphasized(path.absolute(dir))} using template $templateId...');
     log.stdout('');
 
     stagehand.Generator generator = getGenerator(templateId);
@@ -93,7 +95,7 @@ class CreateCommand extends WebCommand {
       progress.finish(showTiming: true);
     }
 
-    // "Provisioned 56 packages."
+    // "provisioned 56 packages"
     io.File packagesFile = new io.File(path.join(dir, '.packages'));
     if (packagesFile.existsSync()) {
       int packageCount = packagesFile
@@ -102,7 +104,7 @@ class CreateCommand extends WebCommand {
           .where((line) => line.isNotEmpty && !line.startsWith('#'))
           .length;
       // Don't include the self-reference in the list.
-      log.stdout('  Provisioned ${packageCount - 1} packages.');
+      log.stdout('  provisioned ${packageCount - 1} packages');
     }
 
     log.stdout('');
@@ -113,6 +115,7 @@ class CreateCommand extends WebCommand {
     log.stdout('');
   }
 
+  @override
   String get usageFooter {
     int width = legalIds.map((s) => s.length).fold(0, math.max);
     String desc = generators
@@ -130,6 +133,7 @@ class DirectoryGeneratorTarget extends stagehand.GeneratorTarget {
     dir.createSync();
   }
 
+  @override
   Future createFile(String filePath, List<int> contents) {
     io.File file = new io.File(path.join(dir.path, filePath));
 

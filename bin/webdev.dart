@@ -1,12 +1,13 @@
 // Copyright (c) 2017, Devon Carew. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:webdev/webdev.dart';
 
-main(List<String> arguments) async {
+Future main(List<String> arguments) async {
   WebCommandRunner runner = new WebCommandRunner();
   try {
     dynamic result = await runner.run(arguments);

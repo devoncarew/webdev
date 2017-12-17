@@ -14,8 +14,10 @@ class BuildCommand extends WebCommand {
         help: 'The build mode (release or debug).');
   }
 
+  @override
   String get invocation => '${super.invocation} [directories...]';
 
+  @override
   run() async {
     List<String> args = ['build'];
     if (argResults.wasParsed('mode')) {

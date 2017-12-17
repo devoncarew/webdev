@@ -16,6 +16,7 @@ class AnalyzeCommand extends WebCommand {
         negatable: false, help: 'Treat warnings as fatal');
   }
 
+  @override
   run() async {
     List<String> args = [];
     if (argResults['fatal-infos']) args.add('--fatal-infos');

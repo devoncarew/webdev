@@ -19,8 +19,12 @@ import 'src/sdk.dart';
 
 // TODO: doctor, fix, upgrade, channel, pub get, pub upgrade?
 
+// TODO: bash shell completion
+
+final String _descFragment = 'A tool for Dart web development';
+
 class WebCommandRunner extends CommandRunner {
-  WebCommandRunner() : super('webdev', 'A tool for Dart web development.') {
+  WebCommandRunner() : super('webdev', '$_descFragment.') {
     argParser.addFlag('version',
         negatable: false, help: 'Reports the version of this tool.');
     argParser.addFlag('verbose',
@@ -36,12 +40,13 @@ class WebCommandRunner extends CommandRunner {
     addCommand(new TestCommand());
   }
 
+  @override
   Future runCommand(ArgResults results) async {
     if (results['version']) {
       print(
-          '${ansi.emphasized(executableName)} ${ansi.bullet} https://webdev.dartlang.org');
-      print(description);
-      print('Built on SDK ${ansi.emphasized(sdk.version)}.');
+          '${ansi.emphasized(executableName)} ${ansi.bullet} webdev.dartlang.org');
+      print('');
+      print('$_descFragment; built on SDK ${ansi.emphasized(sdk.version)}.');
       return null;
     }
 

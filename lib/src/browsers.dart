@@ -6,25 +6,42 @@ import 'dart:io';
 
 import 'package:cli_util/cli_logging.dart';
 import 'package:path/path.dart' as path;
+import 'package:webdev/src/utils.dart';
 import 'package:webkit_inspection_protocol/webkit_inspection_protocol.dart'
     as wip;
 
 class Chrome {
-  static final String macosBundlePath = 'Contents/MacOS/Google Chrome';
+  // TODO: also support location explicit configuration
 
   static Chrome locate() {
     if (Platform.isMacOS) {
       final String defaultPath = '/Applications/Google Chrome.app';
+      final String bundlePath = 'Contents/MacOS/Google Chrome';
 
       if (FileSystemEntity.isDirectorySync(defaultPath)) {
-        // Contents/MacOS/Google Chrome
-        return new Chrome.from(path.join(defaultPath, macosBundlePath));
+        return new Chrome.from(path.join(defaultPath, bundlePath));
       }
     }
 
-    // TODO: try `which`
+    // TODO: check default install locations for linux
+
+    // TODO: check default install locations for windows
+
+    // TODO: try `which` on mac, linux; try `where` on windows
 
     return null;
+  }
+
+  /// Return the path to the per-user, webdev specific Chrome data dir.
+  ///
+  /// This method will create the directory if it does not exist.
+  static String getCreateChromeDataDir() {
+    Directory prefsDir = getDartPrefsDirectory();
+    Directory chromeDataDir = new Directory(path.join(prefsDir.path, 'chrome'));
+    if (!chromeDataDir.existsSync()) {
+      chromeDataDir.createSync(recursive: true);
+    }
+    return chromeDataDir.path;
   }
 
   factory Chrome.from(String executable) {
@@ -38,11 +55,10 @@ class Chrome {
   Chrome._(this.executable);
 
   Future<ChromeProcess> start({String url, int debugPort: 9222}) {
-    String dataDir = path.absolute('.chromeDataDir');
     List<String> args = [
       '--no-default-browser-check',
       '--no-first-run',
-      '--user-data-dir=$dataDir',
+      '--user-data-dir=${getCreateChromeDataDir()}',
       '--remote-debugging-port=$debugPort'
     ];
     if (url != null) {
@@ -93,12 +109,12 @@ class ChromeTab {
   final wip.ChromeTab wipTab;
   wip.WipConnection _wip;
 
-  StreamController _disconnectStream = new StreamController.broadcast();
-  StreamController<wip.LogEntry> _entryAddedController =
+  final StreamController _disconnectStream = new StreamController.broadcast();
+  final StreamController<wip.LogEntry> _entryAddedController =
       new StreamController.broadcast();
-  StreamController<wip.ConsoleAPIEvent> _consoleAPICalledController =
+  final StreamController<wip.ConsoleAPIEvent> _consoleAPICalledController =
       new StreamController.broadcast();
-  StreamController<wip.ExceptionThrownEvent> _exceptionThrownController =
+  final StreamController<wip.ExceptionThrownEvent> _exceptionThrownController =
       new StreamController.broadcast();
 
   num _lostConnectionTime;
@@ -158,7 +174,7 @@ class ChromeTab {
   Future reconnectWhile(Logger log, bool shouldReconnect()) {
     assert(_wip == null);
 
-    var tryConnect;
+    VoidFunction tryConnect;
     Completer completer = new Completer();
 
     tryConnect = () {

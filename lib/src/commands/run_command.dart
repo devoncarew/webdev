@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:cli_util/cli_logging.dart';
 import 'package:path/path.dart' as path;
 import 'package:watcher/watcher.dart';
+import 'package:webdev/src/utils.dart';
 import 'package:webkit_inspection_protocol/webkit_inspection_protocol.dart'
     show ConsoleAPIEvent, LogEntry, RemoteObject, ExceptionDetails;
 import 'package:webkit_inspection_protocol/webkit_inspection_protocol.dart'
@@ -46,13 +47,16 @@ class RunCommand extends WebCommand {
         help: 'The build mode (release or debug).');
   }
 
+  @override
   String get summary {
     return '${super.summary}\n'
         'Use with --live to watch the filesystem and auto-refresh Chrome.';
   }
 
+  @override
   String get invocation => '${super.invocation} <file>';
 
+  @override
   run() async {
     if (argResults.rest.length > 1) {
       usageException(
@@ -73,13 +77,13 @@ class RunCommand extends WebCommand {
 
     if (entryUri == null) {
       if (!FileSystemEntity.isFileSync(entry)) {
-        usageException('Entry-point file not found: ${entry}.');
+        usageException('Entry-point file not found: $entry.');
         return 1;
       }
 
       // TODO: Also support dart files?
       if (path.extension(entry) != '.html') {
-        usageException('Please select an html file to run (${entry}).');
+        usageException('Please select an html file to run ($entry).');
         return 1;
       }
     }
@@ -206,7 +210,7 @@ class RunCommand extends WebCommand {
                 log.stderr('Error reloading page: $e');
               });
             } else {
-              log.stdout(ansi.emphasized('\n${symbol}'
+              log.stdout(ansi.emphasized('\n$symbol'
                   'Reload not performed (no active Chrome connection)'));
             }
           }
@@ -252,7 +256,7 @@ class RunCommand extends WebCommand {
 }
 
 class DebounceTimer {
-  final Function callback;
+  final VoidFunction callback;
   final Duration debounceTime;
 
   Timer _timer;

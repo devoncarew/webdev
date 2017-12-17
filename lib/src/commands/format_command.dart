@@ -16,15 +16,16 @@ class FormatCommand extends WebCommand {
             'return an exit code of 1 if there would be any formatting changes.');
   }
 
+  @override
   run() async {
-    List args;
+    List<String> args;
 
     bool filter = false;
     int lineCount = 0;
     if (argResults['dry-run']) {
-      args = ['--dry-run'];
+      args = <String>['--dry-run'];
     } else {
-      args = ['--overwrite'];
+      args = <String>['--overwrite'];
       filter = true;
     }
     args.addAll(argResults.rest.isEmpty ? ['.'] : argResults.rest);

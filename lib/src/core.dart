@@ -14,12 +14,18 @@ Logger log;
 bool isVerbose = false;
 
 abstract class WebCommand extends Command {
-  final String name;
-  final String description;
+  final String _name;
+  final String _description;
 
-  WebCommand(this.name, this.description);
+  WebCommand(this._name, this._description);
 
-  WebCommandRunner get webRunner => runner;
+  @override
+  String get name => _name;
+
+  @override
+  String get description => _description;
+
+  WebCommandRunner get webRunner => runner as WebCommandRunner;
 }
 
 Future<Process> startProcess(String executable, List<String> arguments,

@@ -17,7 +17,7 @@ import '../sdk.dart';
 class ServeCommand extends WebCommand {
   ServeCommand() : super('serve', '''Run a local web development server.
 
-By default, this serves "web/" and "test/", but an explicit list of 
+By default, this serves "web/" and "test/", but an explicit list of
 directories to serve can be provided as well.''') {
     argParser.addOption('mode',
         defaultsTo: 'debug',
@@ -25,8 +25,10 @@ directories to serve can be provided as well.''') {
         help: 'The build mode (release or debug).');
   }
 
+  @override
   String get invocation => '${super.invocation} [directories...]';
 
+  @override
   run() async {
     List<String> args = ['serve'];
     if (argResults.wasParsed('mode')) {

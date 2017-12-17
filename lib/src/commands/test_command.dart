@@ -16,6 +16,7 @@ class TestCommand extends WebCommand {
         help: 'The number of concurrent test suites run.');
   }
 
+  @override
   run() async {
     List<String> args = ['run', 'test'];
     if (argResults.wasParsed('concurrency')) {

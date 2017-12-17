@@ -23,5 +23,5 @@ class Sdk {
       new File(path.join(dir, 'version')).readAsStringSync().trim();
 
   static String _binName(String base) =>
-      Platform.isWindows ? '${base}.bat' : base;
+      Platform.isWindows ? '$base.bat' : base;
 }

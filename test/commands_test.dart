@@ -7,7 +7,7 @@ import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:webdev/src/commands/create_command.dart';
 
-main() {
+void main() {
   group('command', () {
     test('--version', () {
       TestProject p = project();
@@ -27,7 +27,7 @@ main() {
   });
 }
 
-defineAnalyze() {
+void defineAnalyze() {
   TestProject p;
 
   tearDown(() => p?.dispose());
@@ -51,7 +51,7 @@ defineAnalyze() {
   });
 }
 
-defineBuild() {
+void defineBuild() {
   TestProject p;
 
   tearDown(() => p?.dispose());
@@ -73,7 +73,7 @@ defineBuild() {
   });
 }
 
-defineServe() {
+void defineServe() {
   TestProject p;
 
   tearDown(() => p?.dispose());
@@ -89,7 +89,7 @@ defineServe() {
 //  });
 }
 
-defineCreate() {
+void defineCreate() {
   TestProject p;
 
   setUp(() => p = null);
@@ -147,7 +147,7 @@ defineCreate() {
   }
 }
 
-defineFormat() {
+void defineFormat() {
   TestProject p;
 
   tearDown(() => p?.dispose());
@@ -174,7 +174,7 @@ defineFormat() {
   });
 }
 
-defineTest() {
+void defineTest() {
   TestProject p;
 
   tearDown(() => p?.dispose());
@@ -252,7 +252,7 @@ class TestProject {
 
   String _createPackages() {
     String contents = new File('.packages').readAsStringSync();
-    contents += "${name}:${dir.path}/lib";
+    contents += "$name:${dir.path}/lib";
     return contents;
   }
 
