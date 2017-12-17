@@ -6,14 +6,14 @@ import 'dart:async';
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:cli_util/cli_logging.dart';
-import 'package:webdev/src/commands/run_command.dart';
+import 'package:webdev/src/commands/run.dart';
 
-import 'src/commands/analyze_command.dart';
-import 'src/commands/build_command.dart';
-import 'src/commands/create_command.dart';
-import 'src/commands/format_command.dart';
-import 'src/commands/serve_command.dart';
-import 'src/commands/test_command.dart';
+import 'src/commands/analyze.dart';
+import 'src/commands/build.dart';
+import 'src/commands/create.dart';
+import 'src/commands/format.dart';
+import 'src/commands/serve.dart';
+import 'src/commands/test.dart';
 import 'src/core.dart';
 import 'src/sdk.dart';
 

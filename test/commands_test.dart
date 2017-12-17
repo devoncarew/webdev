@@ -5,7 +5,7 @@ import 'dart:io';
 
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
-import 'package:webdev/src/commands/create_command.dart';
+import 'package:webdev/src/commands/create.dart';
 
 void main() {
   group('command', () {

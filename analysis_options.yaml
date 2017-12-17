@@ -36,6 +36,7 @@ linter:
     - library_names
     - library_prefixes
     - non_constant_identifier_names
+    - package_api_docs
     - prefer_conditional_assignment
     - prefer_final_fields
     - prefer_is_empty
