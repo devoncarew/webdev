@@ -28,8 +28,11 @@ abstract class WebCommand extends Command {
   WebCommandRunner get webRunner => runner as WebCommandRunner;
 }
 
-Future<Process> startProcess(String executable, List<String> arguments,
-    {String cwd}) {
+Future<Process> startProcess(
+  String executable,
+  List<String> arguments, {
+  String cwd,
+}) {
   log.trace('$executable ${arguments.join(' ')}');
   return Process.start(executable, arguments, workingDirectory: cwd);
 }

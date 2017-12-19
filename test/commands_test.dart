@@ -8,22 +8,47 @@ import 'package:test/test.dart';
 import 'package:webdev/src/commands/create.dart';
 
 void main() {
-  group('command', () {
-    test('--version', () {
-      TestProject p = project();
-      try {
-        expect(p.run('--version').exitCode, 0);
-      } finally {
-        p.dispose();
-      }
-    });
+  group('flag', defineFlags);
 
+  group('command', () {
     group('analyze', defineAnalyze);
     group('build', defineBuild);
     group('create', defineCreate);
     group('format', defineFormat);
+    // TODO: test the run command
     group('serve', defineServe);
     group('test', defineTest);
+  });
+}
+
+void defineFlags() {
+  TestProject p;
+
+  tearDown(() => p?.dispose());
+
+  test('--version', () {
+    p = project();
+    ProcessResult r = p.run('--version');
+    expect(r.exitCode, 0);
+    expect(r.stdout, contains('webdev'));
+  });
+
+  test('--help', () {
+    p = project();
+    ProcessResult r = p.run('--help');
+    expect(r.exitCode, 0);
+    expect(r.stdout, contains('webdev'));
+    expect(r.stdout, contains('Global options:'));
+    expect(r.stdout, contains('Available commands:'));
+  });
+
+  test('--verbose', () {
+    p = project(mainSrc: 'int get foo => 1;\n');
+    ProcessResult result = p.run('format', ['-v']);
+    expect(result.exitCode, 0);
+    // "[ 126 ms] /usr/.../bin/dartfmt --overwrite ."
+    expect(result.stdout, contains(' ms] '));
+    expect(result.stdout, contains('dartfmt --overwrite'));
   });
 }
 
@@ -43,6 +68,13 @@ void defineAnalyze() {
     ProcessResult result = p.run('analyze');
     expect(result.exitCode, 1);
   });
+
+  // TODO(devoncarew): The sample needs to produce a warning.
+  test('fatal warnings', () {
+    p = project(mainSrc: "import 'dart:async';\nint get foo => 1;\n");
+    ProcessResult result = p.run('analyze', ['--fatal-warnings']);
+    expect(result.exitCode, 1);
+  }, skip: true);
 
   test('fatal infos', () {
     p = project(mainSrc: "import 'dart:async';\nint get foo => 1;\n");
@@ -156,7 +188,7 @@ void defineFormat() {
     p = project(mainSrc: 'int get foo => 1;\n');
     ProcessResult result = p.run('format');
     expect(result.exitCode, 0);
-    expect(result.stdout, isEmpty);
+    expect(result.stdout, contains('No changed files'));
   });
 
   test('with changes', () {
@@ -166,7 +198,13 @@ void defineFormat() {
     expect(result.stdout, startsWith('Formatted '));
   });
 
-  test('dry run', () {
+  test('dry run no changes', () {
+    p = project(mainSrc: 'int get foo => 1;\n');
+    ProcessResult result = p.run('format', ['--dry-run']);
+    expect(result.exitCode, 0);
+  });
+
+  test('dry run with changes', () {
     p = project(mainSrc: 'int get  foo => 1;\n');
     ProcessResult result = p.run('format', ['--dry-run']);
     expect(result.exitCode, 1);
