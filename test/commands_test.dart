@@ -242,11 +242,20 @@ main() {
     expect(result.exitCode, 1);
   });
 
-  test('supports concurrency', () {
-    p = project(mainSrc: 'int get foo => 2;');
+  test('reporter expanded', () {
+    p = project(mainSrc: 'int get foo => 1;');
     p.file('test/main_test.dart', testSrc);
-    ProcessResult result = p.run('test', ['--concurrency', '4']);
-    expect(result.exitCode, 1);
+    ProcessResult result = p.run('test', ['--reporter', 'expanded']);
+    expect(result.exitCode, 0);
+    expect(result.stdout, contains('+1: All tests passed!'));
+  });
+
+  test('reporter json', () {
+    p = project(mainSrc: 'int get foo => 1;');
+    p.file('test/main_test.dart', testSrc);
+    ProcessResult result = p.run('test', ['--reporter', 'json']);
+    expect(result.exitCode, 0);
+    expect(result.stdout, contains('{"protocolVersion":"0.1.0","runnerVersion":'));
   });
 }
 
