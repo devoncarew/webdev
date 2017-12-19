@@ -6,6 +6,7 @@ import 'dart:io';
 
 import '../core.dart';
 import '../sdk.dart';
+import '../utils.dart';
 
 class FormatCommand extends WebCommand {
   FormatCommand() : super('format', 'Format source files.') {
@@ -18,29 +19,27 @@ class FormatCommand extends WebCommand {
 
   @override
   run() async {
-    List<String> args;
-
-    bool filter = false;
-    int lineCount = 0;
-    if (argResults['dry-run']) {
-      args = <String>['--dry-run'];
-    } else {
-      args = <String>['--overwrite'];
-      filter = true;
-    }
+    final bool dryRun = argResults['dry-run'];
+    int changeCount = 0;
+    List<String> args = <String>[dryRun ? '--dry-run' : '--overwrite'];
     args.addAll(argResults.rest.isEmpty ? ['.'] : argResults.rest);
 
-    Process process = await startProcess(sdk.dartfmt, args);
+    final Process process = await startProcess(sdk.dartfmt, args);
     process.stdout
         .transform(UTF8.decoder)
         .transform(const LineSplitter())
         .listen((String line) {
-      lineCount++;
+      if (dryRun) {
+        changeCount++;
 
-      if (!filter || line.startsWith('Formatted ')) {
         log.stdout(line);
       } else {
-        log.trace(line);
+        if (line.startsWith('Formatted ')) {
+          changeCount++;
+          log.stdout(line);
+        } else {
+          log.trace(line);
+        }
       }
     });
     process.stderr
@@ -49,6 +48,14 @@ class FormatCommand extends WebCommand {
         .listen(log.stderr);
 
     int code = await process.exitCode;
-    return (argResults['dry-run'] && lineCount > 0) ? 1 : code;
+
+    if (changeCount == 0) {
+      log.stdout('No changed files.');
+    } else {
+      log.stdout('$changeCount changed ${pluralize('file', changeCount)}.');
+    }
+
+    if (argResults['dry-run'] && changeCount > 0) return 1;
+    return code;
   }
 }
