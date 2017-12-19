@@ -9,7 +9,7 @@ import 'package:args/command_runner.dart';
 import 'package:cli_util/cli_logging.dart';
 import 'package:webdev/webdev.dart';
 
-final Ansi ansi = new Ansi(Ansi.terminalSupportsAnsi);
+Ansi ansi = new Ansi(Ansi.terminalSupportsAnsi);
 Logger log;
 bool isVerbose = false;
 
@@ -43,37 +43,43 @@ void routeToStdout(
   void listener(String str),
 }) {
   if (isVerbose) {
-    process.stdout
-        .transform(UTF8.decoder)
-        .transform(const LineSplitter())
-        .listen((String line) {
+    _streamLineTransform(process.stdout, (String line) {
       logToTrace ? log.trace(line.trimRight()) : log.stdout(line.trimRight());
       if (listener != null) listener(line);
     });
-    process.stderr
-        .transform(UTF8.decoder)
-        .transform(const LineSplitter())
-        .listen((String line) {
+    _streamLineTransform(process.stderr, (String line) {
       log.stderr(line.trimRight());
       if (listener != null) listener(line);
     });
   } else {
-    if (!logToTrace) {
-      process.stdout
-          .transform(UTF8.decoder)
-          .transform(const LineSplitter())
-          .listen((String line) {
-        log.stdout(line.trimRight());
-        if (listener != null) listener(line);
-      });
-    }
+    _streamLineTransform(process.stdout, (String line) {
+      logToTrace ? log.trace(line.trimRight()) : log.stdout(line.trimRight());
+      if (listener != null) listener(line);
+    });
 
-    process.stderr
-        .transform(UTF8.decoder)
-        .transform(const LineSplitter())
-        .listen((String line) {
+    _streamLineTransform(process.stderr, (String line) {
       log.stderr(line.trimRight());
       if (listener != null) listener(line);
     });
   }
+}
+
+void routeToStdoutStreaming(Process process) {
+  if (isVerbose) {
+    _streamLineTransform(
+        process.stdout, (line) => log.stdout(line.trimRight()));
+    _streamLineTransform(
+        process.stderr, (line) => log.stderr(line.trimRight()));
+  } else {
+    process.stdout.listen((List<int> data) => stdout.add(data));
+    _streamLineTransform(
+        process.stderr, (line) => log.stderr(line.trimRight()));
+  }
+}
+
+void _streamLineTransform(Stream<List<int>> stream, handler(String line)) {
+  stream
+      .transform(UTF8.decoder)
+      .transform(const LineSplitter())
+      .listen(handler);
 }

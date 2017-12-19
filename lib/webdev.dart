@@ -25,10 +25,12 @@ final String _descFragment = 'A tool for Dart web development';
 
 class WebCommandRunner extends CommandRunner {
   WebCommandRunner() : super('webdev', '$_descFragment.') {
-    argParser.addFlag('version',
-        negatable: false, help: 'Reports the version of this tool.');
     argParser.addFlag('verbose',
         abbr: 'v', negatable: false, help: 'Show verbose output.');
+    argParser.addFlag('color',
+        negatable: true, help: 'Whether to use terminal colors.');
+    argParser.addFlag('version',
+        negatable: false, help: 'Reports the version of this tool.');
 
     addCommand(new AnalyzeCommand());
     addCommand(new BuildCommand());
@@ -42,9 +44,14 @@ class WebCommandRunner extends CommandRunner {
 
   @override
   Future runCommand(ArgResults results) async {
+    if (results.wasParsed('color')) {
+      final bool useColor = results['color'];
+      ansi = new Ansi(useColor);
+    }
+
     if (results['version']) {
-      print(
-          '${ansi.emphasized(executableName)} ${ansi.bullet} webdev.dartlang.org');
+      print('${ansi.emphasized(executableName)} ${ansi
+          .bullet} webdev.dartlang.org');
       print('');
       print('$_descFragment; built on SDK ${ansi.emphasized(sdk.version)}.');
       return null;
