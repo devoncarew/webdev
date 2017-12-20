@@ -6,7 +6,7 @@ import 'dart:io';
 import '../core.dart';
 import '../sdk.dart';
 
-// TODO: handle platform
+// TODO: handle the platform option
 
 // TODO: we don't properly handle ansi rewriting with -rcompact
 
@@ -29,6 +29,9 @@ class TestCommand extends WebCommand {
         defaultsTo: 'expanded',
         help: 'The reporter used to print test results.');
   }
+
+  @override
+  String get invocation => '${super.invocation} [file or directories...]';
 
   @override
   run() async {

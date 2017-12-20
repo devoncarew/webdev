@@ -15,6 +15,7 @@ void main() {
     group('build', defineBuild);
     group('create', defineCreate);
     group('format', defineFormat);
+    group('pub', definePub);
     // TODO: test the run command
     group('serve', defineServe);
     group('test', defineTest);
@@ -69,7 +70,7 @@ void defineAnalyze() {
     expect(result.exitCode, 1);
   });
 
-  // TODO(devoncarew): The sample needs to produce a warning.
+  // TODO(devoncarew): The sample needs to produce an analysis warning.
   test('fatal warnings', () {
     p = project(mainSrc: "import 'dart:async';\nint get foo => 1;\n");
     ProcessResult result = p.run('analyze', ['--fatal-warnings']);
@@ -212,6 +213,69 @@ void defineFormat() {
   });
 }
 
+void definePub() {
+  group('get', () {
+    TestProject p;
+
+    tearDown(() => p?.dispose());
+
+    test('success', () {
+      p = project(mainSrc: 'int get foo => 1;\n');
+      ProcessResult result = p.run('pub', ['get', '--offline']);
+      expect(result.exitCode, 0);
+      expect(result.stdout, contains('Resolving dependencies...'));
+    });
+
+    test('failure', () {
+      p = project(mainSrc: 'int get foo => 1;\n');
+      p.file('pubspec.yaml',
+          'name: ${p.name}\ndev_dependencies:\n  test_foo: any\n');
+      ProcessResult result = p.run('pub', ['get', '--offline']);
+      expect(result.exitCode, 69);
+      expect(result.stderr, contains('Could not find package'));
+    });
+
+    test('dry run', () {
+      p = project(mainSrc: 'int get foo => 1;\n');
+      ProcessResult result = p.run('pub', ['get', '--offline', '--dry-run']);
+      expect(result.exitCode, 0);
+      expect(result.stdout, contains('ould change'));
+      expect(result.stdout, contains('dependencies'));
+    });
+  });
+
+  group('upgrade', () {
+    TestProject p;
+
+    tearDown(() => p?.dispose());
+
+    test('success', () {
+      p = project(mainSrc: 'int get foo => 1;\n');
+      ProcessResult result = p.run('pub', ['upgrade', '--offline']);
+      expect(result.exitCode, 0);
+      expect(result.stdout, contains('Resolving dependencies...'));
+    });
+
+    test('failure', () {
+      p = project(mainSrc: 'int get foo => 1;\n');
+      p.file('pubspec.yaml',
+          'name: ${p.name}\ndev_dependencies:\n  test_foo: any\n');
+      ProcessResult result = p.run('pub', ['upgrade', '--offline']);
+      expect(result.exitCode, 69);
+      expect(result.stderr, contains('Could not find package'));
+    });
+
+    test('dry run', () {
+      p = project(mainSrc: 'int get foo => 1;\n');
+      ProcessResult result =
+          p.run('pub', ['upgrade', '--offline', '--dry-run']);
+      expect(result.exitCode, 0);
+      expect(result.stdout, contains('ould change'));
+      expect(result.stdout, contains('dependencies'));
+    });
+  });
+}
+
 void defineTest() {
   TestProject p;
 
@@ -219,7 +283,7 @@ void defineTest() {
 
   final String testSrc = '''
 import 'package:test/test.dart';
-import 'package:${TestProject.name}/main.dart';
+import 'package:${TestProject.defaultProjectName}/main.dart';
 
 main() {
   test('test', () {
@@ -255,7 +319,8 @@ main() {
     p.file('test/main_test.dart', testSrc);
     ProcessResult result = p.run('test', ['--reporter', 'json']);
     expect(result.exitCode, 0);
-    expect(result.stdout, contains('{"protocolVersion":"0.1.0","runnerVersion":'));
+    expect(
+        result.stdout, contains('{"protocolVersion":"0.1.0","runnerVersion":'));
   });
 }
 
@@ -264,7 +329,9 @@ TestProject project({String mainSrc}) => new TestProject(mainSrc: mainSrc);
 class TestProject {
   Directory dir;
 
-  static String get name => 'webdev_temp';
+  static String get defaultProjectName => 'webdev_temp';
+
+  String get name => defaultProjectName;
 
   TestProject({String mainSrc}) {
     dir = Directory.systemTemp.createTempSync('webdev');

@@ -25,7 +25,7 @@ class BuildCommand extends WebCommand {
       args.add(argResults['mode']);
     }
     args.addAll(argResults.rest);
-    Process process = await startProcess(sdk.pub, args);
+    final Process process = await startProcess(sdk.pub, args);
     routeToStdout(process);
     return process.exitCode;
   }

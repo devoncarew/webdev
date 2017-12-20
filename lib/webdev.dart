@@ -6,18 +6,19 @@ import 'dart:async';
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:cli_util/cli_logging.dart';
-import 'package:webdev/src/commands/run.dart';
 
 import 'src/commands/analyze.dart';
 import 'src/commands/build.dart';
 import 'src/commands/create.dart';
 import 'src/commands/format.dart';
+import 'src/commands/pub.dart';
+import 'src/commands/run.dart';
 import 'src/commands/serve.dart';
 import 'src/commands/test.dart';
 import 'src/core.dart';
 import 'src/sdk.dart';
 
-// TODO: doctor, fix, upgrade, channel, pub get, pub upgrade?
+// TODO: doctor, fix, upgrade, channel?
 
 // TODO: bash shell completion
 
@@ -36,7 +37,7 @@ class WebCommandRunner extends CommandRunner {
     addCommand(new BuildCommand());
     addCommand(new CreateCommand());
     addCommand(new FormatCommand());
-    // TODO: addCommand(new PubCommand());
+    addCommand(new PubCommand());
     addCommand(new RunCommand());
     addCommand(new ServeCommand());
     addCommand(new TestCommand());
