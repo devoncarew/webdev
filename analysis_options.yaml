@@ -1,10 +1,7 @@
 analyzer:
   strong-mode: true
   errors:
-    unused_import: error
-    unused_local_variable: error
-    dead_code: error
-    override_on_non_overriding_method: error
+    override_on_non_overriding_method: warning
 linter:
   rules:
     # Errors

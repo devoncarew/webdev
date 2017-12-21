@@ -7,15 +7,18 @@ import 'dart:io';
 import 'package:cli_util/cli_logging.dart';
 import 'package:path/path.dart' as path;
 import 'package:watcher/watcher.dart';
-import 'package:webdev/src/utils.dart';
+import 'package:webkit_inspection_protocol/src/runtime.dart';
 import 'package:webkit_inspection_protocol/webkit_inspection_protocol.dart'
     show ConsoleAPIEvent, LogEntry, RemoteObject, ExceptionDetails;
 import 'package:webkit_inspection_protocol/webkit_inspection_protocol.dart'
     as wip show StackTrace;
+import 'package:yaml/yaml.dart' as yaml;
 
 import '../browsers.dart';
 import '../core.dart';
 import '../sdk.dart';
+import '../source_maps.dart';
+import '../utils.dart';
 
 // TODO: --port               The base port to listen on.
 // (defaults to "8080")
@@ -27,13 +30,18 @@ import '../sdk.dart';
 
 // TODO: support --browser
 
-// TODO: reverse source mapped stack traces
-
 // TODO: support starting w/ a url
 
 // TODO: some exceptions from devtools are not being reported
 
 class RunCommand extends WebCommand {
+  final SourceMapManager sourceMapManager =
+      new SourceMapManager(logger: (String str) {
+    log.trace(str);
+  });
+
+  String selfRefName;
+
   RunCommand()
       : super('run',
             "Start 'pub serve' and open the given app in Chrome (defaults to 'web/index.html').") {
@@ -62,6 +70,15 @@ class RunCommand extends WebCommand {
       usageException(
           'Too many entry-point files given: ${argResults.rest.join(' ')}');
       return 1;
+    }
+
+    // Try and parse the selfRefName name.
+    try {
+      yaml.YamlDocument doc =
+          yaml.loadYamlDocument(new File('pubspec.yaml').readAsStringSync());
+      selfRefName = doc.contents.value['name'];
+    } catch (_) {
+      // ignore
     }
 
     String entry =
@@ -189,12 +206,7 @@ class RunCommand extends WebCommand {
 
         wip.StackTrace trace = details.stackTrace;
         if (trace != null) {
-          if (trace.description != null) {
-            log.stderr('exception $bullet ${ansi.error(trace.description)}');
-          }
-          log.stderr(trace.printFrames().map((line) {
-            return 'exception $bullet   ${ansi.error(line)}';
-          }).join('\n'));
+          logMappedTrace(trace);
         }
       });
 
@@ -206,6 +218,7 @@ class RunCommand extends WebCommand {
 
             if (tab.isConnected) {
               log.stdout(ansi.emphasized('\n${symbol}Reloading page...'));
+              sourceMapManager.clearCache();
               tab.reload().catchError((e) {
                 log.stderr('Error reloading page: $e');
               });
@@ -252,6 +265,35 @@ class RunCommand extends WebCommand {
       pubServeProcess?.kill();
       chromeProcess?.kill();
     }
+  }
+
+  void logMappedTrace(wip.StackTrace trace) {
+    final Ansi ansi = log.ansi;
+    final String bullet = ansi.bullet;
+    final List<Frame> frames =
+        trace.callFrames.map((f) => new Frame.fromCallFrame(f)).toList();
+
+    sourceMapManager.mapFrames(frames).then((List<Frame> mappedFrames) {
+      if (trace.description != null) {
+        log.stderr('exception $bullet ${ansi.error(trace.description)}');
+      }
+
+      log.stderr(Frame
+          .formatFrames(mappedFrames, selfRefName: selfRefName)
+          .map((line) {
+        return 'exception $bullet   ${ansi.error(line)}';
+      }).join('\n'));
+    }).catchError((e) {
+      log.stdout('error resolving source maps: $e');
+
+      if (trace.description != null) {
+        log.stderr('exception $bullet ${ansi.error(trace.description)}');
+      }
+
+      log.stderr(Frame.formatFrames(frames).map((line) {
+        return 'exception $bullet   ${ansi.error(line)}';
+      }).join('\n'));
+    });
   }
 }
 
