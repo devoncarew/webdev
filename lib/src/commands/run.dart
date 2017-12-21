@@ -36,7 +36,9 @@ import '../utils.dart';
 
 class RunCommand extends WebCommand {
   final SourceMapManager sourceMapManager =
-      new SourceMapManager(logger: log.trace);
+      new SourceMapManager(logger: (String str) {
+    log.trace(str);
+  });
 
   String selfRefName;
 
