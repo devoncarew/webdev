@@ -1,6 +1,7 @@
 .packages
 .idea/
 .pub/
+.dart_tool/
 build/
 pubspec.lock
 

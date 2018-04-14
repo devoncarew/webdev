@@ -79,7 +79,7 @@ void routeToStdoutStreaming(Process process) {
 
 void _streamLineTransform(Stream<List<int>> stream, handler(String line)) {
   stream
-      .transform(UTF8.decoder)
+      .transform(utf8.decoder)
       .transform(const LineSplitter())
       .listen(handler);
 }

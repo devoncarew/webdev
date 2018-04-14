@@ -199,6 +199,7 @@ class RunCommand extends WebCommand {
         }
       });
 
+      // TODO(devoncarew): Not all exceptions seem to be logged.
       tab.onExceptionThrown.listen((event) {
         ExceptionDetails details = event.exceptionDetails;
         String text = details.exception?.toString() ?? details.text;

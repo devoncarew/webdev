@@ -8,7 +8,7 @@ import 'package:args/command_runner.dart';
 import 'package:webdev/webdev.dart';
 
 Future main(List<String> arguments) async {
-  WebCommandRunner runner = new WebCommandRunner();
+  final WebCommandRunner runner = new WebCommandRunner();
   try {
     dynamic result = await runner.run(arguments);
     exit(result is int ? result : 0);

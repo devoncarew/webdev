@@ -26,7 +26,7 @@ class FormatCommand extends WebCommand {
 
     final Process process = await startProcess(sdk.dartfmt, args);
     process.stdout
-        .transform(UTF8.decoder)
+        .transform(utf8.decoder)
         .transform(const LineSplitter())
         .listen((String line) {
       if (dryRun) {
@@ -43,7 +43,7 @@ class FormatCommand extends WebCommand {
       }
     });
     process.stderr
-        .transform(UTF8.decoder)
+        .transform(utf8.decoder)
         .transform(const LineSplitter())
         .listen(log.stderr);
 
