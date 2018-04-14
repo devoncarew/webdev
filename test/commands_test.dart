@@ -232,7 +232,7 @@ void definePub() {
           'name: ${p.name}\ndev_dependencies:\n  test_foo: any\n');
       ProcessResult result = p.run('pub', ['get', '--offline']);
       expect(result.exitCode, 69);
-      expect(result.stderr, contains('Could not find package'));
+      expect(result.stderr, contains('could not find package'));
     });
 
     test('dry run', () {
@@ -262,7 +262,7 @@ void definePub() {
           'name: ${p.name}\ndev_dependencies:\n  test_foo: any\n');
       ProcessResult result = p.run('pub', ['upgrade', '--offline']);
       expect(result.exitCode, 69);
-      expect(result.stderr, contains('Could not find package'));
+      expect(result.stderr, contains('could not find package'));
     });
 
     test('dry run', () {
