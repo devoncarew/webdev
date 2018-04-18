@@ -12,15 +12,13 @@ import '../sdk.dart';
 
 class TestCommand extends WebCommand {
   TestCommand() : super('test', 'Run unit tests.') {
-    argParser.addOption('name',
+    argParser.addMultiOption('name',
         abbr: 'n',
-        allowMultiple: true,
         splitCommas: true,
         help: 'A substring of the name of the test to run; '
             'regular expression syntax is supported.');
-    argParser.addOption('plain-name',
+    argParser.addMultiOption('plain-name',
         abbr: 'N',
-        allowMultiple: true,
         splitCommas: true,
         help: 'A plain-text substring of the name of the test to run.');
     argParser.addOption('reporter',

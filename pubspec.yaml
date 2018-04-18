@@ -5,17 +5,17 @@ homepage: https://github.com/devoncarew/webdev
 author: Devon Carew <devoncarew@gmail.com>
 
 environment:
-  sdk: '>=1.20.1 <2.0.0'
+  sdk: '>=2.0.0-dev.17.0 <2.0.0'
 
 dependencies:
   analysis_server_lib: ^0.1.1+1
-  args: '>=0.13.0 <2.0.0'
+  args: ^1.4.0
   cli_util: ^0.1.0
   http_client: ^0.3.0
   intl: ^0.15.0
   path: ^1.4.0
   source_maps: ^0.10.0
-  stagehand: 1.1.8
+  stagehand: 1.1.9
   watcher: ^0.9.0
   webkit_inspection_protocol: ^0.3.1
   yaml: ^2.0.0

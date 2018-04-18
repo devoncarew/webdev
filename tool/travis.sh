@@ -9,8 +9,12 @@ set -e
 
 # Verify that the libraries are error free.
 dartanalyzer --fatal-warnings \
-  bin/webdev.dart \
-  test/commands_test.dart
+  bin/ \
+  lib/ \
+  test/
 
 # Run the tests.
 pub run test
+
+# Ensure we run with --preview-dart-2
+dart --preview-dart-2 --enable-asserts bin/webdev.dart
