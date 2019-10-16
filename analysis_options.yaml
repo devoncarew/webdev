@@ -1,7 +1,7 @@
 analyzer:
-  strong-mode: true
   errors:
     override_on_non_overriding_method: warning
+
 linter:
   rules:
     # Errors

@@ -1,8 +1,8 @@
 // Copyright (c) 2017, Devon Carew. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
-import 'package:test/src/utils.dart';
 import 'package:test/test.dart';
+import 'package:webdev/src/utils.dart';
 
 void main() {
   group('pluralize', () {
