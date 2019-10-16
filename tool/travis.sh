@@ -16,5 +16,5 @@ dartanalyzer --fatal-warnings \
 # Run the tests.
 pub run test
 
-# Ensure we run with --preview-dart-2
-dart --preview-dart-2 --enable-asserts bin/webdev.dart
+# Smoke test the tool.
+dart --enable-asserts bin/webdev.dart -h
