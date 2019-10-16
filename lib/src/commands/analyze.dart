@@ -111,8 +111,7 @@ class AnalyzeCommand extends WebCommand {
           location = location.substring(analysisRoot.length + 1);
         }
         final String locationDesc =
-            '$location:${error.location.startLine}:${error.location
-            .startColumn}';
+            '$location:${error.location.startLine}:${error.location.startColumn}';
 
         String message = error.message;
         if (message.endsWith('.')) {
@@ -130,10 +129,8 @@ class AnalyzeCommand extends WebCommand {
     final NumberFormat secondsFormat = new NumberFormat('0.0');
     double seconds = stopwatch.elapsedMilliseconds / 1000.0;
     log.stdout(
-        '${errors.isEmpty ? "No" : formatNumber(errors.length)} ${pluralize(
-            "issue", errors.length)} '
-        'found; analyzed ${formatNumber(sources.length)} source ${pluralize(
-            "file", sources.length)} '
+        '${errors.isEmpty ? "No" : formatNumber(errors.length)} ${pluralize("issue", errors.length)} '
+        'found; analyzed ${formatNumber(sources.length)} source ${pluralize("file", sources.length)} '
         'in ${secondsFormat.format(seconds)}s.');
 
     // return the results

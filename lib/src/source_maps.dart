@@ -147,7 +147,7 @@ class Frame {
     return frames.map((Frame frame) {
       return '${frame.functionName}()'.padRight(width + 2) +
           ' ${frame.getDisplayLocation(selfRefName: selfRefName)} '
-          '${frame.lineNumber}:${frame.columnNumber}';
+              '${frame.lineNumber}:${frame.columnNumber}';
     }).toList();
   }
 }

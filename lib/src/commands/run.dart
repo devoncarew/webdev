@@ -279,8 +279,7 @@ class RunCommand extends WebCommand {
         log.stderr('exception $bullet ${ansi.error(trace.description)}');
       }
 
-      log.stderr(Frame
-          .formatFrames(mappedFrames, selfRefName: selfRefName)
+      log.stderr(Frame.formatFrames(mappedFrames, selfRefName: selfRefName)
           .map((line) {
         return 'exception $bullet   ${ansi.error(line)}';
       }).join('\n'));

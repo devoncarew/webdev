@@ -51,8 +51,8 @@ class WebCommandRunner extends CommandRunner {
     }
 
     if (results['version']) {
-      print('${ansi.emphasized(executableName)} ${ansi
-          .bullet} webdev.dartlang.org');
+      print(
+          '${ansi.emphasized(executableName)} ${ansi.bullet} webdev.dartlang.org');
       print('');
       print('$_descFragment; built on SDK ${ansi.emphasized(sdk.version)}.');
       return null;
@@ -64,10 +64,6 @@ class WebCommandRunner extends CommandRunner {
         ? new Logger.verbose(ansi: ansi)
         : new Logger.standard(ansi: ansi);
 
-    try {
-      return await super.runCommand(results);
-    } finally {
-      log?.flush();
-    }
+    return await super.runCommand(results);
   }
 }
