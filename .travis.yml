@@ -1,4 +1,9 @@
 language: dart
 dart:
   - dev
-script: ./tool/travis.sh
+
+  script: ./tool/travis.sh
+
+branches:
+  only:
+  - master
